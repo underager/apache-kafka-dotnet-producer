@@ -26,11 +26,13 @@ namespace ProducerApplication.Controllers
         {
             var topic = _config.GetSection("TopicName").Value;
 
+            var partition = new Partition(1);
+
             string serializedData = Newtonsoft.Json.JsonConvert.SerializeObject(car);
 
             using(var producer = new ProducerBuilder<Null, string>(_configuration).Build())
             {
-                await producer.ProduceAsync(topic, new Message<Null, string> { Value = serializedData });
+                await producer.ProduceAsync(new TopicPartition(topic, partition), new Message<Null, string> { Value = serializedData});
                 producer.Flush(TimeSpan.FromSeconds(10));
 
                 return Ok(true);
